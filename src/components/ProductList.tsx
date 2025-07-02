@@ -11,6 +11,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState<ProductOffering | null>(null);
+  const [isOrderFormOpen, setIsOrderFormOpen] = useState(false);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -164,6 +165,144 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
     </div>
   );
 
+  const handleBuy = (product: ProductOffering) => {
+    // Replace this with your actual buy logic (e.g., redirect to checkout, open modal, etc.)
+    alert(`You have bought ${product.id}!`);
+  };
+
+  const ProductOrderForm = ({ product, onClose }: { product: ProductOffering; onClose: () => void }) => {
+    const [form, setForm] = useState({
+      category: 'B2D product order',
+      description: `New order for ${product.name}`,
+      externalId: [{ id: 'PO123456', owner: 'TMF', externalIdentifierType: 'POnumber' }],
+      priority: 2,
+      requestedCompletionDate: '',
+      requestedStartDate: '',
+      productOrderItem: [
+        {
+          id: product.id,
+          quantity: 1,
+          action: 'add',
+          product: {
+            isBundle: product.isBundle,
+            '@type': product.productSpecification.name,
+            productSpecification: {
+              id: product.productSpecification.id,
+              href: product.productSpecification.href,
+              version: product.productSpecification.version,
+              name: product.productSpecification.name,
+              '@type': 'ProductSpecificationRef'
+            }
+          },
+          '@type': 'ProductOrderItem'
+        }
+      ],
+      relatedParty: [
+        {
+          role: 'Seller',
+          partyOrPartyRole: {
+            id: 'seller-001',
+            href: 'https://host:port/partyManagement/v5/individual/seller-001',
+            name: 'Alice Telecom',
+            '@type': 'PartyRef',
+            '@referredType': 'Individual'
+          },
+          '@type': 'RelatedPartyRefOrPartyRoleRef'
+        },
+        {
+          role: 'Customer',
+          partyOrPartyRole: {
+            id: 'customer-001',
+            href: 'https://host:port/partyRoleManagement/v5/customer/customer-001',
+            name: 'Jean Pontus',
+            '@type': 'PartyRoleRef',
+            '@referredType': 'Customer'
+          },
+          '@type': 'RelatedPartyRefOrPartyRoleRef'
+        }
+      ],
+      state: 'inProgress'
+    });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      try {
+        const response = await fetch('https://valiant-expression-production.up.railway.app/tmf-api/productOrderingManagement/v5/productOrder/productOrder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ '@type': 'ProductOrder', ...form }),
+        });
+        if (response.ok) {
+          console.log('response', response.body);
+          alert('Order submitted!');
+          onClose();
+        } else {
+          alert('Order failed!');
+        }
+      } catch (err) {
+        alert('Order failed!');
+      }
+      setIsSubmitting(false);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4">
+          <h2 className="text-xl font-bold mb-2">Product Order for {product.name}</h2>
+          <label>
+            Category:
+            <input name="category" value={form.category} onChange={handleChange} className="w-full border rounded px-2 py-1" required />
+          </label>
+          <label>
+            Description:
+            <textarea name="description" value={form.description} onChange={handleChange} className="w-full border rounded px-2 py-1" required />
+          </label>
+          <label>
+            Priority:
+            <input name="priority" type="number" value={form.priority} onChange={handleChange} className="w-full border rounded px-2 py-1" required />
+          </label>
+          <label>
+            Requested Start Date:
+            <input name="requestedStartDate" type="datetime-local" value={form.requestedStartDate} onChange={handleChange} className="w-full border rounded px-2 py-1" required />
+          </label>
+          <label>
+            Requested Completion Date:
+            <input name="requestedCompletionDate" type="datetime-local" value={form.requestedCompletionDate} onChange={handleChange} className="w-full border rounded px-2 py-1" required />
+          </label>
+          <label>
+            Quantity:
+            <input
+              name="quantity"
+              type="number"
+              value={form.productOrderItem[0].quantity}
+              onChange={e => setForm({
+                ...form,
+                productOrderItem: [
+                  { ...form.productOrderItem[0], quantity: Number(e.target.value) }
+                ]
+              })}
+              className="w-full border rounded px-2 py-1"
+              required
+            />
+          </label>
+          <div className="flex justify-end space-x-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded bg-gray-200">Cancel</button>
+            <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit Order'}
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -265,11 +404,47 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => onDelete(product.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete Product"
+  onClick={async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(
+        `https://tm-forum-production.up.railway.app/tmf-api/productCatalogManagement/v5/productOffering/${product.id}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to delete product: ${errorText}`);
+      }
+
+      // Call parent delete function to update UI
+      onDelete(product.id);
+      alert('🗑️ Product deleted successfully!');
+    } catch (error) {
+      console.error('Delete failed:', error);
+      alert('❌ Failed to delete product from server.');
+    }
+  }}
+  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+  title="Delete Product"
+>
+  <Trash2 className="w-4 h-4" />
+</button>
+
+                
+                  <button
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setIsOrderFormOpen(true);
+                    }}
+                    className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                    title="Buy Product"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    Buy
                   </button>
                 </div>
               </div>
@@ -290,6 +465,13 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
         <ProductDetailModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+        />
+      )}
+
+      {isOrderFormOpen && selectedProduct && (
+        <ProductOrderForm
+          product={selectedProduct}
+          onClose={() => setIsOrderFormOpen(false)}
         />
       )}
     </div>

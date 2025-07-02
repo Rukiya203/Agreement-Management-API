@@ -57,7 +57,10 @@ const Dashboard: React.FC = () => {
         // Fetch products
         const productResponse = await fetch('https://tm-forum-production.up.railway.app/tmf-api/productCatalogManagement/v5/productOffering');
         if (productResponse.ok) {
+          
           const productData = await productResponse.json();
+          console.log('Fetched products:', productData);
+
           setProducts(productData);
         }
 
