@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
@@ -12,7 +12,7 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 

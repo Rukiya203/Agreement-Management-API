@@ -172,7 +172,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
 
   const ProductOrderForm = ({ product, onClose }: { product: ProductOffering; onClose: () => void }) => {
     const [form, setForm] = useState({
-      category: 'B2D product order',
+      category: 'B2B product order',
       description: `New order for ${product.name}`,
       externalId: [{ id: 'PO123456', owner: 'TMF', externalIdentifierType: 'POnumber' }],
       priority: 2,
@@ -240,7 +240,6 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
           body: JSON.stringify({ '@type': 'ProductOrder', ...form }),
         });
         if (response.ok) {
-          console.log('response', response.body);
           alert('Order submitted!');
           onClose();
         } else {
@@ -436,6 +435,16 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
 </button>
 
                 
+                  <button
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setIsOrderFormOpen(true);
+                    }}
+                    className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                    title="Buy Product"
+                  >
+                    Buy
+                  </button>
                   <button
                     onClick={() => {
                       setSelectedProduct(product);

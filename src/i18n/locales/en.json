@@ -1,0 +1,225 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "export": "Export",
+    "download": "Download",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "refresh": "Refresh",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up",
+    "submit": "Submit",
+    "required": "Required",
+    "optional": "Optional",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "active": "Active",
+    "inactive": "Inactive",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "help": "Help",
+    "about": "About"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signInButton": "Sign In",
+    "signUp": "Sign Up",
+    "welcomeBack": "Welcome Back",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "invalidCredentials": "Invalid email or password",
+    "noAccount": "Don't have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "createAccount": "Create Account",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "confirmPassword": "Confirm Password"
+  },
+  "customerDashboard": {
+    "title": "Customer Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "tabs": {
+      "overview": "Overview",
+      "preferences": "Consent Preferences",
+      "history": "History",
+      "dataUsage": "Data Usage",
+      "profile": "Profile"
+    },
+    "overview": {
+      "title": "Consent Overview",
+      "totalConsents": "Total Consents",
+      "activeConsents": "Active Consents",
+      "pendingConsents": "Pending Consents",
+      "lastActivity": "Last Activity",
+      "quickActions": "Quick Actions",
+      "updatePreferences": "Update Preferences",
+      "viewHistory": "View History",
+      "downloadData": "Download My Data",
+      "recentActivity": "Recent Activity",
+      "noRecentActivity": "No recent activity"
+    },
+    "preferences": {
+      "title": "Consent Preferences",
+      "description": "Manage your data consent preferences. You can enable or disable different types of data processing based on your comfort level.",
+      "categories": {
+        "essential": "Essential",
+        "marketing": "Marketing",
+        "analytics": "Analytics",
+        "sharing": "Data Sharing",
+        "location": "Location Services"
+      },
+      "consentTypes": {
+        "dataProcessing": {
+          "title": "Data Processing",
+          "description": "Processing of your personal data for service delivery and billing"
+        },
+        "marketing": {
+          "title": "Marketing Communications",
+          "description": "Receive promotional offers, new product announcements, and special deals"
+        },
+        "analytics": {
+          "title": "Usage Analytics",
+          "description": "Analysis of your service usage patterns to improve our offerings"
+        },
+        "thirdParty": {
+          "title": "Third-party Data Sharing",
+          "description": "Sharing your data with trusted partners for enhanced services"
+        },
+        "location": {
+          "title": "Location Services",
+          "description": "Use of location data for location-based services and emergency assistance"
+        }
+      },
+      "lastUpdated": "Last updated: {{date}}",
+      "expiryDate": "Expires: {{date}}",
+      "saveChanges": "Save Changes",
+      "preferencesUpdated": "Your preferences have been updated successfully"
+    },
+    "history": {
+      "title": "Consent History",
+      "description": "View your complete consent change history and download records for your personal files.",
+      "exportHistory": "Export History",
+      "actions": {
+        "granted": "Granted",
+        "revoked": "Revoked",
+        "updated": "Updated",
+        "expired": "Expired"
+      },
+      "noHistory": "No consent history available"
+    },
+    "dataUsage": {
+      "title": "Data Usage Information",
+      "description": "Transparency information about how your data is used, stored, and shared.",
+      "categories": {
+        "personalInfo": "Personal Information",
+        "usageData": "Usage Data",
+        "communicationData": "Communication Data",
+        "locationData": "Location Data",
+        "deviceData": "Device Information"
+      },
+      "purposes": {
+        "serviceDelivery": "Service Delivery",
+        "billing": "Billing & Payment",
+        "customerSupport": "Customer Support",
+        "marketing": "Marketing & Promotions",
+        "analytics": "Service Improvement",
+        "legal": "Legal Compliance"
+      },
+      "retentionPeriod": "Retention Period",
+      "thirdParties": "Third Parties",
+      "dataTypes": "Data Types",
+      "requestData": "Request My Data",
+      "deleteData": "Request Data Deletion"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "personalDetails": "Personal Details",
+      "contactInfo": "Contact Information",
+      "preferences": "Account Preferences",
+      "security": "Security Settings",
+      "language": "Language",
+      "notifications": "Notifications",
+      "updateProfile": "Update Profile",
+      "changePassword": "Change Password",
+      "profileUpdated": "Profile updated successfully"
+    }
+  },
+  "adminDashboard": {
+    "title": "Consent Management Dashboard",
+    "welcome": "Welcome to Admin Dashboard",
+    "metrics": {
+      "totalCustomers": "Total Customers",
+      "activeConsents": "Active Consents",
+      "complianceRate": "Compliance Rate",
+      "pendingRequests": "Pending Requests"
+    },
+    "sections": {
+      "consentOverview": "Consent Overview",
+      "customerManagement": "Customer Management",
+      "auditTrail": "Audit Trail",
+      "productCatalog": "Product Catalog",
+      "complianceReports": "Compliance Reports"
+    }
+  },
+  "language": {
+    "english": "English",
+    "sinhala": "සිංහල",
+    "tamil": "தமிழ்",
+    "changeLanguage": "Change Language",
+    "selectLanguage": "Select Language"
+  },
+  "pdpa": {
+    "title": "PDPA Rights",
+    "description": "Your rights under Sri Lanka's Personal Data Protection Act",
+    "rights": {
+      "access": "Right to Access",
+      "correction": "Right to Correction",
+      "deletion": "Right to Deletion",
+      "portability": "Right to Data Portability",
+      "objection": "Right to Object"
+    },
+    "requestForm": {
+      "title": "Data Subject Rights Request",
+      "requestType": "Request Type",
+      "description": "Description",
+      "submit": "Submit Request",
+      "requestSubmitted": "Your request has been submitted successfully"
+    }
+  },
+  "notifications": {
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "consentUpdated": "Consent preferences updated successfully",
+    "profileUpdated": "Profile updated successfully",
+    "dataExported": "Data exported successfully",
+    "requestSubmitted": "Request submitted successfully"
+  },
+  "errors": {
+    "general": "An error occurred. Please try again.",
+    "networkError": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "validationError": "Please check your input and try again.",
+    "sessionExpired": "Your session has expired. Please log in again."
+  }
+}

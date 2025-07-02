@@ -1,0 +1,225 @@
+{
+  "common": {
+    "loading": "පූරණය කරමින්...",
+    "save": "සුරකින්න",
+    "cancel": "අවලංගු කරන්න",
+    "confirm": "තහවුරු කරන්න",
+    "delete": "මකන්න",
+    "edit": "සංස්කරණය",
+    "view": "බලන්න",
+    "export": "අපනයනය",
+    "download": "බාගන්න",
+    "close": "වසන්න",
+    "back": "ආපසු",
+    "next": "ඊළඟ",
+    "previous": "පෙර",
+    "search": "සොයන්න",
+    "filter": "පෙරහන",
+    "refresh": "නැවුම් කරන්න",
+    "logout": "ඉවත්වන්න",
+    "login": "ඇතුළුවන්න",
+    "signup": "ලියාපදිංචි වන්න",
+    "submit": "ඉදිරිපත් කරන්න",
+    "required": "අවශ්‍ය",
+    "optional": "විකල්ප",
+    "enabled": "සක්‍රීය",
+    "disabled": "අක්‍රීය",
+    "active": "ක්‍රියාකාරී",
+    "inactive": "අක්‍රීය",
+    "yes": "ඔව්",
+    "no": "නැත"
+  },
+  "navigation": {
+    "dashboard": "ප්‍රධාන පුවරුව",
+    "profile": "පැතිකඩ",
+    "settings": "සැකසුම්",
+    "help": "උදව්",
+    "about": "පිළිබඳව"
+  },
+  "auth": {
+    "signIn": "ප්‍රවේශ වන්න",
+    "signInButton": "ප්‍රවේශ වන්න",
+    "signUp": "ලියාපදිංචි වන්න",
+    "welcomeBack": "නැවත සාදරයෙන් පිළිගනිමු",
+    "email": "විද්‍යුත් තැපෑල",
+    "password": "මුරපදය",
+    "rememberMe": "මාව මතක තබා ගන්න",
+    "forgotPassword": "මුරපදය අමතක වුණාද?",
+    "invalidCredentials": "වලංගු නොවන විද්‍යුත් තැපෑල හෝ මුරපදය",
+    "noAccount": "ගිණුමක් නැද්ද?",
+    "dontHaveAccount": "ගිණුමක් නැද්ද?",
+    "alreadyHaveAccount": "දැනටමත් ගිණුමක් තිබේද?",
+    "createAccount": "ගිණුමක් සාදන්න",
+    "firstName": "මුල් නම",
+    "lastName": "අවසාන නම",
+    "confirmPassword": "මුරපදය තහවුරු කරන්න"
+  },
+  "customerDashboard": {
+    "title": "පාරිභෝගික ප්‍රධාන පුවරුව",
+    "welcome": "සාදරයෙන් පිළිගනිමු, {{name}}",
+    "tabs": {
+      "overview": "දළ විශ්ලේෂණය",
+      "preferences": "කැමැත්ත මනාප",
+      "history": "ඉතිහාසය",
+      "dataUsage": "දත්ත භාවිතය",
+      "profile": "පැතිකඩ"
+    },
+    "overview": {
+      "title": "කැමැත්ත දළ විශ්ලේෂණය",
+      "totalConsents": "සම්පූර්ණ කැමැත්ත",
+      "activeConsents": "සක්‍රීය කැමැත්ත",
+      "pendingConsents": "අපේක්ෂාව පවතින කැමැත්ත",
+      "lastActivity": "අවසාන ක්‍රියාකාරකම",
+      "quickActions": "ඉක්මන් ක්‍රියා",
+      "updatePreferences": "මනාප යාවත්කාලීන කරන්න",
+      "viewHistory": "ඉතිහාසය බලන්න",
+      "downloadData": "මගේ දත්ත බාගන්න",
+      "recentActivity": "මෑත ක්‍රියාකාරකම්",
+      "noRecentActivity": "මෑත ක්‍රියාකාරකම් නැත"
+    },
+    "preferences": {
+      "title": "කැමැත්ත මනාප",
+      "description": "ඔබේ දත්ත කැමැත්ත මනාප කළමනාකරණය කරන්න. ඔබේ පහසුකම මට්ටම අනුව විවිධ දත්ත සැකසුම් වර්ග සක්‍රීය හෝ අක්‍රීය කළ හැක.",
+      "categories": {
+        "essential": "අත්‍යවශ්‍ය",
+        "marketing": "අලෙවිකරණය",
+        "analytics": "විශ්ලේෂණ",
+        "sharing": "දත්ත බෙදාගැනීම",
+        "location": "ස්ථාන සේවා"
+      },
+      "consentTypes": {
+        "dataProcessing": {
+          "title": "දත්ත සැකසුම",
+          "description": "සේවා ලබාදීම සහ බිල්පත් කිරීම සඳහා ඔබේ පුද්ගලික දත්ත සැකසීම"
+        },
+        "marketing": {
+          "title": "අලෙවිකරණ සන්නිවේදන",
+          "description": "ප්‍රවර්ධන දීමනා, නව නිෂ්පාදන නිවේදන සහ විශේෂ ගනුදෙනු ලබාගන්න"
+        },
+        "analytics": {
+          "title": "භාවිත විශ්ලේෂණ",
+          "description": "අපගේ සේවා වැඩිදියුණු කිරීම සඳහා ඔබේ සේවා භාවිත රටා විශ්ලේෂණය"
+        },
+        "thirdParty": {
+          "title": "තෙවන පාර්ශවීය දත්ත බෙදාගැනීම",
+          "description": "වැඩිදියුණු කළ සේවා සඳහා විශ්වසනීය සහයෝගිතා සමඟ ඔබේ දත්ත බෙදාගැනීම"
+        },
+        "location": {
+          "title": "ස්ථාන සේවා",
+          "description": "ස්ථාන-පාදක සේවා සහ හදිසි ආධාර සඳහා ස්ථාන දත්ත භාවිතය"
+        }
+      },
+      "lastUpdated": "අවසන් වරට යාවත්කාලීන කළේ: {{date}}",
+      "expiryDate": "කල් ඉකුත් වන දිනය: {{date}}",
+      "saveChanges": "වෙනස්කම් සුරකින්න",
+      "preferencesUpdated": "ඔබේ මනාප සාර්ථකව යාවත්කාලීන කර ඇත"
+    },
+    "history": {
+      "title": "කැමැත්ත ඉතිහාසය",
+      "description": "ඔබේ සම්පූර්ණ කැමැත්ත වෙනස්කම් ඉතිහාසය බලන්න සහ ඔබේ පුද්ගලික ගොනු සඳහා වාර්තා බාගන්න.",
+      "exportHistory": "ඉතිහාසය අපනයනය කරන්න",
+      "actions": {
+        "granted": "ලබාදී ඇත",
+        "revoked": "අවලංගු කර ඇත",
+        "updated": "යාවත්කාලීන කර ඇත",
+        "expired": "කල් ඉකුත් වී ඇත"
+      },
+      "noHistory": "කැමැත්ත ඉතිහාසය නොමැත"
+    },
+    "dataUsage": {
+      "title": "දත්ත භාවිත තොරතුරු",
+      "description": "ඔබේ දත්ත කෙසේ භාවිතා කරනවාද, ගබඩා කරනවාද සහ බෙදාගන්නවාද යන්න පිළිබඳ විනිවිද දැකීමේ තොරතුරු.",
+      "categories": {
+        "personalInfo": "පුද්ගලික තොරතුරු",
+        "usageData": "භාවිත දත්ත",
+        "communicationData": "සන්නිවේදන දත්ත",
+        "locationData": "ස්ථාන දත්ත",
+        "deviceData": "උපකරණ තොරතුරු"
+      },
+      "purposes": {
+        "serviceDelivery": "සේවා ලබාදීම",
+        "billing": "බිල්පත් සහ ගෙවීම",
+        "customerSupport": "පාරිභෝගික සහාය",
+        "marketing": "අලෙවිකරණ සහ ප්‍රවර්ධන",
+        "analytics": "සේවා වැඩිදියුණු කිරීම",
+        "legal": "නීතිමය අනුකූලතාව"
+      },
+      "retentionPeriod": "රඳවා ගැනීමේ කාලය",
+      "thirdParties": "තෙවන පාර්ශවීයයන්",
+      "dataTypes": "දත්ත වර්ග",
+      "requestData": "මගේ දත්ත ඉල්ලන්න",
+      "deleteData": "දත්ත මකාදැමීම ඉල්ලන්න"
+    },
+    "profile": {
+      "title": "පැතිකඩ තොරතුරු",
+      "personalDetails": "පුද්ගලික විස්තර",
+      "contactInfo": "සම්බන්ධතා තොරතුරු",
+      "preferences": "ගිණුම් මනාප",
+      "security": "ආරක්ෂක සැකසුම්",
+      "language": "භාෂාව",
+      "notifications": "දැනුම්දීම්",
+      "updateProfile": "පැතිකඩ යාවත්කාලීන කරන්න",
+      "changePassword": "මුරපදය වෙනස් කරන්න",
+      "profileUpdated": "පැතිකඩ සාර්ථකව යාවත්කාලීන කර ඇත"
+    }
+  },
+  "adminDashboard": {
+    "title": "කැමැත්ත කළමනාකරණ ප්‍රධාන පුවරුව",
+    "welcome": "පරිපාලක ප්‍රධාන පුවරුවට සාදරයෙන් පිළිගනිමු",
+    "metrics": {
+      "totalCustomers": "සම්පූර්ණ පාරිභෝගිකයන්",
+      "activeConsents": "සක්‍රීය කැමැත්ත",
+      "complianceRate": "අනුකූලතා අනුපාතය",
+      "pendingRequests": "අපේක්ෂාව පවතින ඉල්ලීම්"
+    },
+    "sections": {
+      "consentOverview": "කැමැත්ත දළ විශ්ලේෂණය",
+      "customerManagement": "පාරිභෝගික කළමනාකරණය",
+      "auditTrail": "විගණන මාර්ගය",
+      "productCatalog": "නිෂ්පාදන නාමාවලිය",
+      "complianceReports": "අනුකූලතා වාර්තා"
+    }
+  },
+  "language": {
+    "english": "English",
+    "sinhala": "සිංහල",
+    "tamil": "தமிழ்",
+    "changeLanguage": "භාෂාව වෙනස් කරන්න",
+    "selectLanguage": "භාෂාව තෝරන්න"
+  },
+  "pdpa": {
+    "title": "PDPA අයිතිවාසිකම්",
+    "description": "ශ්‍රී ලංකාවේ පුද්ගලික දත්ත ආරක්ෂණ පනත යටතේ ඔබේ අයිතිවාසිකම්",
+    "rights": {
+      "access": "ප්‍රවේශ අයිතිය",
+      "correction": "නිවැරදි කිරීමේ අයිතිය",
+      "deletion": "මකාදැමීමේ අයිතිය",
+      "portability": "දත්ත හුවමාරු කිරීමේ අයිතිය",
+      "objection": "විරෝධතා දැක්වීමේ අයිතිය"
+    },
+    "requestForm": {
+      "title": "දත්ත විෂය අයිතිවාසිකම් ඉල්ලීම",
+      "requestType": "ඉල්ලීම් වර්ගය",
+      "description": "විස්තරය",
+      "submit": "ඉල්ලීම ඉදිරිපත් කරන්න",
+      "requestSubmitted": "ඔබේ ඉල්ලීම සාර්ථකව ඉදිරිපත් කර ඇත"
+    }
+  },
+  "notifications": {
+    "success": "සාර්ථකයි",
+    "error": "දෝෂයක්",
+    "warning": "අනතුරු ඇඟවීම",
+    "info": "තොරතුරු",
+    "consentUpdated": "කැමැත්ත මනාප සාර්ථකව යාවත්කාලීන කර ඇත",
+    "profileUpdated": "පැතිකඩ සාර්ථකව යාවත්කාලීන කර ඇත",
+    "dataExported": "දත්ත සාර්ථකව අපනයනය කර ඇත",
+    "requestSubmitted": "ඉල්ලීම සාර්ථකව ඉදිරිපත් කර ඇත"
+  },
+  "errors": {
+    "general": "දෝෂයක් ඇතිවිය. කරුණාකර නැවත උත්සාහ කරන්න.",
+    "networkError": "ජාල දෝෂයක්. කරුණාකර ඔබේ සම්බන්ධතාව පරීක්ෂා කරන්න.",
+    "unauthorized": "ඔබට මෙම ක්‍රියාව සිදු කිරීමට අවසර නැත.",
+    "validationError": "කරුණාකර ඔබේ ආදානය පරීක්ෂා කර නැවත උත්සාහ කරන්න.",
+    "sessionExpired": "ඔබේ සැසිය කල් ඉකුත් වී ඇත. කරුණාකර නැවත ඇතුළුවන්න."
+  }
+}

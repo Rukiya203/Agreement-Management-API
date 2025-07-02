@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Package, BarChart3, Settings, FileText, Users, TrendingUp, Menu, X, User, ChevronDown, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Package, BarChart3, Settings, FileText, Users, Menu, X, User, ChevronDown, CheckCircle, AlertCircle, Shield, Eye, Clock, Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from './LanguageSelector';
 import ProductOfferingForm from './ProductOfferingForm';
 import ProductList from './ProductList';
 import AgreementForm from './AgreementForm';
@@ -10,15 +12,16 @@ import type { ProductOffering } from '../types/ProductOffering';
 import type { Agreement } from '../types/Agreement';
 import { agreementService } from '../services/agreementService';
 
-type View = 'dashboard' | 'add-product' | 'products' | 'add-agreement' | 'agreements';
+type View = 'dashboard' | 'add-product' | 'products' | 'add-agreement' | 'agreements' | 'consent-overview' | 'audit-trail';
 
 interface Notification {
   id: string;
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'info';
   message: string;
 }
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [products, setProducts] = useState<ProductOffering[]>([]);
   const [agreements, setAgreements] = useState<Agreement[]>([]);
@@ -31,7 +34,7 @@ const Dashboard: React.FC = () => {
   
   const { user, logout } = useAuth();
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
     const id = Math.random().toString(36).substr(2, 9);
     const notification: Notification = { id, type, message };
     
@@ -60,6 +63,7 @@ const Dashboard: React.FC = () => {
           
           const productData = await productResponse.json();
           console.log('Fetched products:', productData);
+          console.log('Fetched products:', productData);
 
           setProducts(productData);
         }
@@ -70,7 +74,6 @@ const Dashboard: React.FC = () => {
           setAgreements(agreementData);
         } catch (agreementError) {
           console.warn('Agreement service not available:', agreementError);
-          // Continue without agreements if service is not available
         }
 
         setLoading(false);
@@ -152,13 +155,10 @@ const Dashboard: React.FC = () => {
     const sellableProducts = products.filter(p => p.isSellable).length;
     const bundleProducts = products.filter(p => p.isBundle).length;
     
-    // Since the API doesn't return status field, let's use different logic
-    // Count agreements as "active" if they exist and have valid data
     const activeAgreements = agreements.filter(a => 
-      a.id && a.name && !a.status // If no status field, consider them active
+      a.id && a.name && !a.status
     ).length;
     
-    // For "in process", we can use agreements that might have recent updates
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     
@@ -166,9 +166,21 @@ const Dashboard: React.FC = () => {
       const createdDate = new Date(a.createdDate);
       const updatedDate = a.updatedDate ? new Date(a.updatedDate) : null;
       
-      // Consider as "in process" if created recently or updated recently
       return (createdDate > thirtyDaysAgo) || (updatedDate && updatedDate > thirtyDaysAgo);
     }).length;
+
+    // Consent Management specific metrics
+    const consentAgreements = agreements.filter(a => 
+      a.agreementType && (
+        a.agreementType.includes('consent') || 
+        a.agreementType.includes('privacy') ||
+        a.agreementType.includes('data')
+      )
+    );
+    
+    const totalCustomers = 1250; // Mock data - would come from customer API
+    const activeConsents = consentAgreements.length;
+    const complianceRate = totalCustomers > 0 ? Math.round((activeConsents / totalCustomers) * 100) : 0;
     
     return {
       totalProducts: products.length,
@@ -177,7 +189,13 @@ const Dashboard: React.FC = () => {
       bundleProducts,
       totalAgreements: agreements.length,
       activeAgreements,
-      inProcessAgreements
+      inProcessAgreements,
+      // Consent Management metrics
+      totalCustomers,
+      activeConsents,
+      revokedConsents: Math.floor(activeConsents * 0.05),
+      pendingConsents: Math.floor(activeConsents * 0.1),
+      complianceRate
     };
   };
 
@@ -210,7 +228,6 @@ const Dashboard: React.FC = () => {
                 alt="Logo" 
                 className="w-20 h-20 lg:w-24 lg:h-24 object-contain"
                 onError={(e) => {
-                  // Fallback to icon if image fails to load
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}
@@ -218,7 +235,6 @@ const Dashboard: React.FC = () => {
               <Package className="w-10 h-10 lg:w-12 lg:h-12 text-gray-600 hidden" />
             </div>
             
-            {/* Close button for mobile */}
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/50 transition-colors flex-shrink-0"
@@ -249,6 +265,52 @@ const Dashboard: React.FC = () => {
               <BarChart3 className={`w-5 h-5 mr-3 ${currentView === 'dashboard' ? 'text-white' : 'text-gray-400 group-hover:text-blue-500'}`} />
               <span className="font-medium">Dashboard</span>
             </button>
+          </div>
+
+          {/* Consent Management Section */}
+          <div className="px-3 lg:px-4 mb-4">
+            <div className="mb-3">
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">Consent Management</h2>
+            </div>
+            
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  setCurrentView('consent-overview');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-all duration-200 group ${
+                  currentView === 'consent-overview' 
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' 
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <Shield className={`w-5 h-5 mr-3 ${currentView === 'consent-overview' ? 'text-white' : 'text-gray-400 group-hover:text-blue-500'}`} />
+                <span className="font-medium flex-1">Consent Overview</span>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  currentView === 'consent-overview' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-emerald-100 text-emerald-700 group-hover:bg-emerald-200'
+                }`}>
+                  {stats.complianceRate}%
+                </span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setCurrentView('audit-trail');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full flex items-center px-3 py-3 text-left rounded-lg transition-all duration-200 group ${
+                  currentView === 'audit-trail' 
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' 
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <Eye className={`w-5 h-5 mr-3 ${currentView === 'audit-trail' ? 'text-white' : 'text-gray-400 group-hover:text-purple-500'}`} />
+                <span className="font-medium">Audit Trail</span>
+              </button>
+            </div>
           </div>
 
           {/* Products Section */}
@@ -359,36 +421,261 @@ const Dashboard: React.FC = () => {
     </>
   );
 
+  const renderConsentOverview = () => (
+    <div className="space-y-6 lg:space-y-8">
+      {/* Header Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Consent Management Overview</h1>
+            <p className="text-gray-600 mt-2 text-sm lg:text-base">Monitor customer consent preferences and ensure PDPA compliance</p>
+          </div>
+          <div className="mt-4 lg:mt-0 flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setCurrentView('add-agreement')}
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              New Consent Agreement
+            </button>
+            <button
+              onClick={() => setCurrentView('audit-trail')}
+              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Audit Trail
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Consent Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6 border border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-green-700 mb-1">Data Processing</p>
+              <p className="text-2xl font-bold text-green-900">{Math.floor(stats.activeConsents * 0.85)}</p>
+              <p className="text-xs text-green-600 mt-1">Active consents</p>
+            </div>
+            <Shield className="w-10 h-10 text-green-600" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-700 mb-1">Marketing</p>
+              <p className="text-2xl font-bold text-blue-900">{Math.floor(stats.activeConsents * 0.65)}</p>
+              <p className="text-xs text-blue-600 mt-1">Opt-in customers</p>
+            </div>
+            <Users className="w-10 h-10 text-blue-600" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-6 border border-purple-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-purple-700 mb-1">Third-party Sharing</p>
+              <p className="text-2xl font-bold text-purple-900">{Math.floor(stats.activeConsents * 0.35)}</p>
+              <p className="text-xs text-purple-600 mt-1">Sharing allowed</p>
+            </div>
+            <Database className="w-10 h-10 text-purple-600" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-orange-50 to-red-100 rounded-xl p-6 border border-orange-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-orange-700 mb-1">Analytics</p>
+              <p className="text-2xl font-bold text-orange-900">{Math.floor(stats.activeConsents * 0.75)}</p>
+              <p className="text-xs text-orange-600 mt-1">Analytics consent</p>
+            </div>
+            <BarChart3 className="w-10 h-10 text-orange-600" />
+          </div>
+        </div>
+      </div>
+
+      {/* PDPA Compliance Status */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">PDPA Compliance Status</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center p-6 bg-green-50 rounded-lg border border-green-200">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-green-900 mb-2">Compliant</h3>
+            <p className="text-3xl font-bold text-green-600">{stats.complianceRate}%</p>
+            <p className="text-sm text-green-600 mt-1">Meeting PDPA requirements</p>
+          </div>
+          
+          <div className="text-center p-6 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-8 h-8 text-yellow-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Pending Review</h3>
+            <p className="text-3xl font-bold text-yellow-600">{stats.pendingConsents}</p>
+            <p className="text-sm text-yellow-600 mt-1">Awaiting customer action</p>
+          </div>
+          
+          <div className="text-center p-6 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Eye className="w-8 h-8 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">Audit Ready</h3>
+            <p className="text-3xl font-bold text-blue-600">100%</p>
+            <p className="text-sm text-blue-600 mt-1">Complete audit trail</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAuditTrail = () => (
+    <div className="space-y-6 lg:space-y-8">
+      {/* Header Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Consent Audit Trail</h1>
+            <p className="text-gray-600 mt-2 text-sm lg:text-base">Complete log of consent changes and data processing activities</p>
+          </div>
+          <div className="mt-4 lg:mt-0">
+            <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+              <Database className="w-4 h-4 mr-2" />
+              Export Audit Log
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Audit Events */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Recent Consent Activities</h2>
+        </div>
+        <div className="divide-y divide-gray-200">
+          {[
+            { action: 'Consent Granted', user: 'customer@example.com', category: 'Marketing', timestamp: '2 hours ago', status: 'success' },
+            { action: 'Consent Revoked', user: 'user@telecom.lk', category: 'Third-party Sharing', timestamp: '4 hours ago', status: 'warning' },
+            { action: 'Data Processing', user: 'system', category: 'Analytics', timestamp: '6 hours ago', status: 'info' },
+            { action: 'Consent Updated', user: 'customer2@example.com', category: 'Service Improvement', timestamp: '8 hours ago', status: 'success' },
+            { action: 'Consent Expired', user: 'olduser@example.com', category: 'Marketing', timestamp: '12 hours ago', status: 'error' },
+          ].map((event, index) => (
+            <div key={index} className="p-6 hover:bg-gray-50 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    event.status === 'success' ? 'bg-green-100' :
+                    event.status === 'warning' ? 'bg-yellow-100' :
+                    event.status === 'error' ? 'bg-red-100' : 'bg-blue-100'
+                  }`}>
+                    {event.status === 'success' ? <CheckCircle className="w-5 h-5 text-green-600" /> :
+                     event.status === 'warning' ? <AlertCircle className="w-5 h-5 text-yellow-600" /> :
+                     event.status === 'error' ? <X className="w-5 h-5 text-red-600" /> :
+                     <Eye className="w-5 h-5 text-blue-600" />}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{event.action}</p>
+                    <p className="text-sm text-gray-500">{event.user} • {event.category}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">{event.timestamp}</p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    event.status === 'success' ? 'bg-green-100 text-green-800' :
+                    event.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                    event.status === 'error' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {event.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   const renderDashboardContent = () => (
     <div className="space-y-6 lg:space-y-8">
       {/* Header Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-            <p className="text-gray-600 mt-2 text-sm lg:text-base">Monitor your product offerings, agreements, and key metrics</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">Consent Management Dashboard</h1>
+            <p className="text-gray-600 mt-2 text-sm lg:text-base">Monitor consent preferences, compliance status, and key metrics</p>
           </div>
           <div className="mt-4 lg:mt-0 flex flex-col sm:flex-row gap-3">
             <button
-              onClick={() => setCurrentView('add-product')}
+              onClick={() => setCurrentView('consent-overview')}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
+              <Shield className="w-4 h-4 mr-2" />
+              Consent Overview
             </button>
             <button
               onClick={() => setCurrentView('add-agreement')}
               className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Agreement
+              New Agreement
             </button>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Total Customers</p>
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stats.totalCustomers.toLocaleString()}</p>
+              <div className="flex items-center mt-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                <span className="text-xs text-gray-500">Registered users</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center">
+              <Users className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Active Consents</p>
+              <p className="text-2xl sm:text-3xl font-bold text-green-600">{stats.activeConsents}</p>
+              <div className="flex items-center mt-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                <span className="text-xs text-gray-500">Valid consents</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center">
+              <Shield className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-1">Compliance Rate</p>
+              <p className="text-2xl sm:text-3xl font-bold text-indigo-600">{stats.complianceRate}%</p>
+              <div className="flex items-center mt-2">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+                <span className="text-xs text-gray-500">PDPA compliant</span>
+              </div>
+            </div>
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl flex items-center justify-center">
+              <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div className="flex-1">
@@ -408,15 +695,15 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 mb-1">Active Products</p>
-              <p className="text-2xl sm:text-3xl font-bold text-green-600">{stats.activeProducts}</p>
+              <p className="text-sm font-medium text-gray-600 mb-1">Pending Consents</p>
+              <p className="text-2xl sm:text-3xl font-bold text-yellow-600">{stats.pendingConsents}</p>
               <div className="flex items-center mt-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                <span className="text-xs text-gray-500">Currently active</span>
+                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                <span className="text-xs text-gray-500">Awaiting approval</span>
               </div>
             </div>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-50 to-green-100 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" />
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl flex items-center justify-center">
+              <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-600" />
             </div>
           </div>
         </div>
@@ -436,149 +723,6 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600 mb-1">Active Agreements</p>
-              <p className="text-2xl sm:text-3xl font-bold text-indigo-600">{stats.activeAgreements}</p>
-              <div className="flex items-center mt-2">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
-                <span className="text-xs text-gray-500">Valid agreements</span>
-              </div>
-            </div>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Items */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
-        {/* Recent Products */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Package className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recent Products</h2>
-                  <p className="text-sm text-gray-600">Latest product offerings</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setCurrentView('products')}
-                className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
-              >
-                View All
-              </button>
-            </div>
-          </div>
-          <div className="p-4 sm:p-6">
-            <div className="space-y-4">
-              {products.slice(0, 5).map((product, index) => (
-                <div key={product.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-blue-600">{index + 1}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-medium text-gray-900 truncate text-sm">{product.name}</h3>
-                      <p className="text-xs text-gray-500">Version {product.version} • Created {new Date().toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 flex-shrink-0">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product.lifecycleStatus === 'Active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {product.lifecycleStatus}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {products.length === 0 && (
-                <div className="text-center py-8">
-                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">No products available</p>
-                  <button
-                    onClick={() => setCurrentView('add-product')}
-                    className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
-                  >
-                    Create your first product
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Agreements */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Recent Agreements</h2>
-                  <p className="text-sm text-gray-600">Latest customer agreements</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setCurrentView('agreements')}
-                className="px-4 py-2 text-sm font-medium text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-              >
-                View All
-              </button>
-            </div>
-          </div>
-          <div className="p-4 sm:p-6">
-            <div className="space-y-4">
-              {agreements.slice(0, 5).map((agreement, index) => (
-                <div key={agreement.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3 min-w-0 flex-1">
-                    <div className="w-8 h-8 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-green-600">{index + 1}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-medium text-gray-900 truncate text-sm">{agreement.name}</h3>
-                      <p className="text-xs text-gray-500">Type: {agreement.agreementType} • Created {new Date().toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 flex-shrink-0">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      agreement.status === 'Active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : agreement.status === 'Pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {agreement.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {agreements.length === 0 && (
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">No agreements available</p>
-                  <button
-                    onClick={() => setCurrentView('add-agreement')}
-                    className="mt-2 text-green-600 hover:text-green-700 text-sm font-medium"
-                  >
-                    Create your first agreement
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Quick Actions */}
@@ -586,54 +730,54 @@ const Dashboard: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
-            onClick={() => setCurrentView('add-product')}
+            onClick={() => setCurrentView('consent-overview')}
             className="flex items-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-colors group"
           >
             <div className="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center mr-3">
-              <Plus className="w-5 h-5 text-blue-600" />
+              <Shield className="w-5 h-5 text-blue-600" />
             </div>
             <div className="text-left">
-              <p className="font-medium text-gray-900">Add Product</p>
-              <p className="text-sm text-gray-500">Create new offering</p>
+              <p className="font-medium text-gray-900">Consent Overview</p>
+              <p className="text-sm text-gray-500">View all consents</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={() => setCurrentView('audit-trail')}
+            className="flex items-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-colors group"
+          >
+            <div className="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
+              <Eye className="w-5 h-5 text-green-600" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium text-gray-900">Audit Trail</p>
+              <p className="text-sm text-gray-500">Review activities</p>
             </div>
           </button>
           
           <button
             onClick={() => setCurrentView('add-agreement')}
-            className="flex items-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg hover:from-green-100 hover:to-emerald-100 transition-colors group"
+            className="flex items-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-colors group"
           >
-            <div className="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center mr-3">
-              <Plus className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center mr-3">
+              <Plus className="w-5 h-5 text-purple-600" />
             </div>
             <div className="text-left">
-              <p className="font-medium text-gray-900">Add Agreement</p>
-              <p className="text-sm text-gray-500">Create new agreement</p>
+              <p className="font-medium text-gray-900">New Agreement</p>
+              <p className="text-sm text-gray-500">Create consent</p>
             </div>
           </button>
           
           <button
             onClick={() => setCurrentView('products')}
-            className="flex items-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg hover:from-purple-100 hover:to-pink-100 transition-colors group"
+            className="flex items-center p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg hover:from-orange-100 hover:to-red-100 transition-colors group"
           >
-            <div className="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center mr-3">
-              <Package className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-orange-100 group-hover:bg-orange-200 rounded-lg flex items-center justify-center mr-3">
+              <Package className="w-5 h-5 text-orange-600" />
             </div>
             <div className="text-left">
               <p className="font-medium text-gray-900">View Products</p>
               <p className="text-sm text-gray-500">Manage offerings</p>
-            </div>
-          </button>
-          
-          <button
-            onClick={() => setCurrentView('agreements')}
-            className="flex items-center p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg hover:from-orange-100 hover:to-red-100 transition-colors group"
-          >
-            <div className="w-10 h-10 bg-orange-100 group-hover:bg-orange-200 rounded-lg flex items-center justify-center mr-3">
-              <FileText className="w-5 h-5 text-orange-600" />
-            </div>
-            <div className="text-left">
-              <p className="font-medium text-gray-900">View Agreements</p>
-              <p className="text-sm text-gray-500">Manage contracts</p>
             </div>
           </button>
         </div>
@@ -651,6 +795,10 @@ const Dashboard: React.FC = () => {
         return <AgreementForm onSubmit={handleAddAgreement} onCancel={() => setCurrentView('dashboard')} />;
       case 'agreements':
         return <AgreementList agreements={agreements} onDelete={handleDeleteAgreement} />;
+      case 'consent-overview':
+        return renderConsentOverview();
+      case 'audit-trail':
+        return renderAuditTrail();
       default:
         return renderDashboardContent();
     }
@@ -707,16 +855,18 @@ const Dashboard: React.FC = () => {
                     className="w-5 h-5 object-contain"
                   />
                 </div>
-                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 truncate">Consent Management System</h1>
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-900 truncate">{t('adminDashboard.title')}</h1>
               </div>
             </div>
 
-            {/* Right side - User Profile Section */}
-            <div className="relative user-dropdown flex-shrink-0">
-              <button
-                onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors h-10"
-              >
+            {/* Right side - Language Selector and User Profile Section */}
+            <div className="flex items-center space-x-4 flex-shrink-0">
+              <LanguageSelector />
+              <div className="relative user-dropdown">
+                <button
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors h-10"
+                >
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4 text-white" />
                 </div>
@@ -763,6 +913,7 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>
@@ -786,20 +937,25 @@ const Dashboard: React.FC = () => {
               className={`max-w-sm w-full bg-white border-l-4 rounded-lg shadow-lg p-4 transition-all duration-300 transform ${
                 notification.type === 'success' 
                   ? 'border-green-500' 
-                  : 'border-red-500'
+                  : notification.type === 'error'
+                  ? 'border-red-500'
+                  : 'border-blue-500'
               }`}
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   {notification.type === 'success' ? (
                     <CheckCircle className="w-5 h-5 text-green-500" />
-                  ) : (
+                  ) : notification.type === 'error' ? (
                     <AlertCircle className="w-5 h-5 text-red-500" />
+                  ) : (
+                    <Eye className="w-5 h-5 text-blue-500" />
                   )}
                 </div>
                 <div className="ml-3 flex-1">
                   <p className={`text-sm font-medium ${
-                    notification.type === 'success' ? 'text-green-800' : 'text-red-800'
+                    notification.type === 'success' ? 'text-green-800' : 
+                    notification.type === 'error' ? 'text-red-800' : 'text-blue-800'
                   }`}>
                     {notification.message}
                   </p>
@@ -810,7 +966,9 @@ const Dashboard: React.FC = () => {
                     className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                       notification.type === 'success'
                         ? 'text-green-400 hover:bg-green-50 focus:ring-green-600'
-                        : 'text-red-400 hover:bg-red-50 focus:ring-red-600'
+                        : notification.type === 'error'
+                        ? 'text-red-400 hover:bg-red-50 focus:ring-red-600'
+                        : 'text-blue-400 hover:bg-blue-50 focus:ring-blue-600'
                     }`}
                   >
                     <X className="w-4 h-4" />
