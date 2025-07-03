@@ -32,19 +32,72 @@ export const agreementService = {
     return response.json();
   },
 
-  async createAgreement(agreement: Omit<Agreement, 'id' | 'createdDate' | 'href' | 'status' | 'audit'>): Promise<Agreement> {
-    const response = await fetch(API_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(agreement),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create agreement');
+  // async createAgreement(agreement: Omit<Agreement, 'id' | 'createdDate' | 'href' | 'status' | 'audit'>): Promise<Agreement> {
+  //   const response = await fetch(API_BASE_URL, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify(agreement),
+  //   });
+  //   if (!response.ok) {
+  //     throw new Error('Failed to create agreement');
+  //   }
+  //   return response.json();
+  // },
+   async createAgreement(agreement: Omit<Agreement, 'id' | 'createdDate' | 'href' | 'status' | 'audit'>): Promise<Agreement> {
+  // First, send the agreement
+  const response = await fetch(API_BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(agreement),
+    
+  });
+
+  alert('Creating agreement with data: ' + JSON.stringify(agreement));
+
+  
+  for (const item of agreement.agreementItem) {
+    for (const po of item.productOffering) {
+      console.log('Product Offering ID:', po.href);
+      console.log('Product Offering Name:', po.id);
+
+      
+
+      const fullUrl = `${po.href}/${po.id}`;
+
+
+
+      // Optional: fetch data from each po.href
+      try {
+        const poResponse = await fetch(fullUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!poResponse.ok) {
+          console.warn(`Failed to fetch product offering at ${po.href}`);
+        } else {
+          const poData = await poResponse.json();
+          
+          console.log('Product Offering Response:', poData);
+        }
+      } catch (error) {
+        console.error('Error fetching product offering:', error);
+      }
     }
-    return response.json();
-  },
+  }
+
+  if (!response.ok) {
+    throw new Error('Failed to create agreement');
+  }
+
+  return response.json();
+},
 
   async updateAgreement(id: string, agreement: Partial<Agreement>): Promise<Agreement> {
     const response = await fetch(`${API_BASE_URL}/${id}`, {

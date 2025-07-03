@@ -407,26 +407,29 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this product?');
     if (!confirmDelete) return;
 
-    try {
-      const response = await fetch(
-        `https://tm-forum-production.up.railway.app/tmf-api/productCatalogManagement/v5/productOffering/${product.id}`,
-        {
-          method: 'DELETE',
-        }
-      );
+    
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to delete product: ${errorText}`);
-      }
-
-      // Call parent delete function to update UI
-      onDelete(product.id);
-      alert('🗑️ Product deleted successfully!');
-    } catch (error) {
-      console.error('Delete failed:', error);
-      alert('❌ Failed to delete product from server.');
+   try {
+  const response = await fetch(
+    `https://tm-forum-production.up.railway.app/tmf-api/productCatalogManagement/v5/productOffering/${product.id}`,
+                                                 
+    {
+      method: 'DELETE',
     }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to delete product: ${errorText}`);
+  }
+
+  // Call parent delete function to update UI
+  onDelete(product.id);
+  alert('🗑️ Product deleted successfully!');
+} catch (error) {
+  console.error('Delete failed:', error);
+  alert('❌ Failed to delete product from server.');
+}
   }}
   className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
   title="Delete Product"
@@ -446,6 +449,77 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
                     Buy
                   </button>
                   <button
+  onClick={async () => {
+    console.log('product id eka yKO', product.id);
+    const fullUrl = `https://agreement-management-backend-production.up.railway.app/agreements`;
+    
+    try {
+      const response = await fetch(
+        `${fullUrl}`, 
+        {
+          method: 'GET',
+          
+        }
+      );
+      console.log('Response status:', response);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to view product: ${errorText}`);
+      }
+
+      const agreementData = await response.json(); // 📥 Parse JSON response
+      // console.log('Fetched Agreement:', agreementData);
+      for (const agreement of agreementData) {
+        // console.log('Agreement ID:', agreement);
+        for(const item of agreement.agreementItem) {
+          console.log('Agreement Item ID:', item);
+          // if (item.productOffering.id === product.id) {
+          //   console.log('Matching Product Offering ID:', product.id);
+          //   console.log('Matching Agreement Item Product Offering ID:', item.productOffering.id);
+          //   console.log('Agreement Item:', item);
+          // } else {
+          //   console.log('No matching Product Offering ID found for:', product.id);
+          // }
+        }
+
+        // console.log('Agreement ID hhhhhhhhh:', agreement.id);
+        // console.log('Agreement Name:', agreement.name);
+        for(const item of agreement.agreementItem) {
+          // console.log('Agreement Item ID issssssssssssssssssssssssss:', item.id);
+          if ('7609' === '7609') {
+            // console.log('Matching Product Offering ID peenpn:', product.id);
+
+            // console.log('Matching Product Offering ID bnnnnn:', item.productOffering.id);
+            // console.log('Agreement Item:', item);
+          }else{
+            // console.log('No matching Product Offering ID found for:', product.id);
+          }
+
+        }
+//         console.log('Agreement ID ekd hfhfhfhfn:', agreement.
+// agreementItem
+
+        // console.log('Agreement Name:', agreement.name);
+        // console.log('Agreement Description:', agreement.description);
+      }
+
+      // Optional: Update UI or open modal with fetched data
+      // setSelectedProduct(agreementData);
+      // setIsOrderFormOpen(true);
+
+    } catch (error) {
+      console.error('View failed:', error);
+      alert(' Failed to load agreement from server.');
+    }
+  }}
+  className="p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+  title="View Agreement"
+  type="button" // 👈 Prevents accidental form submission
+>
+  View Agreement
+</button>
+                  {/* <button
                     onClick={() => {
                       setSelectedProduct(product);
                       setIsOrderFormOpen(true);
@@ -454,7 +528,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onDelete }) => {
                     title="Buy Product"
                   >
                     Buy
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

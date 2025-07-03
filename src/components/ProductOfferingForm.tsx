@@ -140,9 +140,11 @@ const ProductOfferingForm: React.FC<ProductOfferingFormProps> = ({ onSubmit }) =
       ...formData,
       lastUpdate: new Date().toISOString(), // Always use current timestamp
     };
+     
 
     try {
       const response = await fetch(
+       
         'https://tm-forum-production.up.railway.app/tmf-api/productCatalogManagement/v5/productOffering',
         {
           method: 'POST',
